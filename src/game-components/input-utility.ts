@@ -1,4 +1,4 @@
-import { InputResponse } from "./app";
+import { InputResponse } from "./input-handlers"
 
 export class InputUtility {
     private static processInputCallback: (event: KeyboardEvent) => any;
