@@ -1,46 +1,36 @@
-import { Actor } from './actor'
-import { Game } from './game'
-
-export enum EventType {
-    NONE,
-    WAIT,
-    MOVE,
-    FANCY,
-    EXTRA_FANCY,
-    MENU,
-}
+import * as Bones from '../bones'
 
 export class GameEvent {
-    constructor(public actor: Actor, public event_type : EventType) {
+    constructor(public actor: Bones.Components.Actor, public event_type : Bones.Enums.EventType) {
         
     }
 }
 
 
-export async function processEvents(game: Game): Promise<boolean>{
+export async function processEvents(game: Bones.Engine.Game): Promise<boolean>{
     let next_event = game.event_queue.shift()
     return await processEvent(game, next_event)
 }
 
-async function processEvent(game: Game, event: GameEvent) : Promise<boolean>  {
+async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise<boolean>  {
     let actor = event.actor
     let event_type = event.event_type
-    console.log(`running event ${EventType[event_type]} for ${actor.name} on turn #${actor.turn_count}`)
-    if (event_type == EventType.MENU) {
+    console.log(`running event ${Bones.Enums.EventType[event_type]} for ${actor.name} on turn #${actor.turn_count}`)
+    if (event_type == Bones.Enums.EventType.MENU) {
         console.log("player did not use up their turn")
         return Promise.resolve(false)
     }
 
-    if (event_type == EventType.FANCY) {
+    if (event_type == Bones.Enums.EventType.FANCY) {
         // animation happens
         // twp wuz here: do i need to modify this function to also be aync / await?
         let words = (actor == game.architect) ? "***" : "*"
         await runFancyAnimation(words)
     }
 
-    if (event_type == EventType.EXTRA_FANCY) {
-        game.event_queue.push(new GameEvent(actor, EventType.FANCY))
-        game.event_queue.push(new GameEvent(game.architect, EventType.FANCY))
+    if (event_type == Bones.Enums.EventType.EXTRA_FANCY) {
+        game.event_queue.push(new GameEvent(actor, Bones.Enums.EventType.FANCY))
+        game.event_queue.push(new GameEvent(game.architect, Bones.Enums.EventType.FANCY))
         return Promise.resolve(false)
     }
 

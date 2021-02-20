@@ -1,9 +1,11 @@
-import { EventType } from "./events"
 import * as  ROT from 'rot-js/lib/index'
+import * as Bones from '../bones'
+import { EventType } from '../game-enums/enums'
+
 
 export interface InputResponse {
     validInput: boolean,
-    event_type: EventType
+    event_type: Bones.Enums.EventType
 }
 
 export function handleInput(event: KeyboardEvent) : InputResponse {

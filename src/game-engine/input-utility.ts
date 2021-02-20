@@ -1,10 +1,10 @@
-import { InputResponse } from "./input-handlers"
+import * as Bones from '../bones'
 
 export class InputUtility {
     private static processInputCallback: (event: KeyboardEvent) => any;
     private static resolve: (value?: any) => void;
 
-    static waitForInput(handleInput: (event: KeyboardEvent) => InputResponse): Promise<InputResponse> {
+    static waitForInput(handleInput: (event: KeyboardEvent) => Bones.Engine.InputResponse): Promise<Bones.Engine.InputResponse> {
         return new Promise(resolve => {
             if (InputUtility.processInputCallback !== undefined) {
                 InputUtility.stopProcessing(null);
@@ -16,7 +16,7 @@ export class InputUtility {
         });
     }
 
-    private static processInput(event: KeyboardEvent, handleInput: (event: KeyboardEvent) => InputResponse ): void {
+    private static processInput(event: KeyboardEvent, handleInput: (event: KeyboardEvent) => Bones.Engine.InputResponse ): void {
         let input_response = handleInput(event)
         if (input_response.validInput) {
             InputUtility.stopProcessing(input_response)
@@ -24,7 +24,7 @@ export class InputUtility {
 
     }
 
-    private static stopProcessing(input_response : InputResponse): void {
+    private static stopProcessing(input_response : Bones.Engine.InputResponse): void {
         window.removeEventListener("keydown", InputUtility.processInputCallback);
         InputUtility.processInputCallback = undefined;
         InputUtility.resolve(input_response);

@@ -1,5 +1,5 @@
 import * as  ROT from 'rot-js/lib/index'
-import { Game } from './game-components/game';
+import * as Bones from './bones'
 
 function startMe() {
     ROT.RNG.setSeed(1111)
@@ -48,7 +48,7 @@ function startMe() {
     let canvas = <HTMLCanvasElement>rotDisp.getContainer()
     divMain.appendChild(canvas)
 
-    let game = new Game()
+    let game = new Bones.Engine.Game()
     game.gameLoop()
 }
 
