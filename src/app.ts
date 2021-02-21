@@ -10,8 +10,8 @@ function startMe() {
     let divMain : HTMLDivElement = <HTMLDivElement>document.getElementById("div_display")
     
     let font_size = 12
-    let map_width = 31
-    let map_height = 31
+    let map_width = Bones.Config.regionSize.width
+    let map_height = Bones.Config.regionSize.height
 
     let rotDisp = new ROT.Display({
         bg: "white",
@@ -28,21 +28,7 @@ function startMe() {
             rotDisp.draw(x, y, "#", ROT.Color.toHex(color_rgb), null)
         }
     }
-    let d
-    let x = ROT.RNG.getUniform()
-    if (x < 0.3334) {
-        d = new ROT.Map.IceyMaze(map_width, map_height, 0)
-
-    }  else if (x < 0.6667) {
-        
-
-        d = new ROT.Map.Cellular(map_width, map_height)
-        d.randomize(0.5)
-        d.randomize(0.5)
-
-    } else {
-        d = new ROT.Map.Digger(map_width, map_height)
-    }
+    let d = new ROT.Map.Digger(map_width, map_height)
     d.create(callback)
 
     let canvas = <HTMLCanvasElement>rotDisp.getContainer()

@@ -1,10 +1,13 @@
 import * as  ROT from 'rot-js/lib/index'
 import * as Bones from '../bones'
+import { EntityType } from '../game-enums/enums'
+import { Entity } from './entity'
 
-export class Actor {
+export class Actor extends Entity {
     public turn_count : number
 
     constructor (public name: string, public is_player : boolean = false) {
+        super(EntityType.Actor, "x", [0, 0, 0])
         this.turn_count = 1
     }
 
@@ -19,14 +22,5 @@ export class Actor {
         
         // mob_response  = {validInput: true, event_type: EventType.MOVE}
         return Promise.resolve(mob_response)
-    }
-}
-
-export class PlayerActor extends Actor {
-    act (game: Bones.Engine.Game) : Promise<Bones.Engine.InputResponse> {
-        // this.turn_count += 1
-        console.log(`waiting on player input for turn #${this.turn_count}`)
-        
-        return Bones.Engine.InputUtility.waitForInput(Bones.Engine.handleInput.bind(this))
     }
 }

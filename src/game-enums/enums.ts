@@ -6,3 +6,8 @@ export enum EventType {
     EXTRA_FANCY,
     MENU,
 }
+
+export enum EntityType {
+    Terrain,
+    Actor
+}

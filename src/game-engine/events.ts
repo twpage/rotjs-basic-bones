@@ -1,7 +1,7 @@
 import * as Bones from '../bones'
 
 export class GameEvent {
-    constructor(public actor: Bones.Components.Actor, public event_type : Bones.Enums.EventType) {
+    constructor(public actor: Bones.Entities.Actor, public event_type : Bones.Enums.EventType) {
         
     }
 }

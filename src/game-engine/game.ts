@@ -7,17 +7,17 @@ import * as Bones from '../bones'
 
 export class Game {
     scheduler : Simple
-    player : Bones.Components.PlayerActor
-    architect : Bones.Components.Actor
+    player : Bones.Entities.PlayerActor
+    architect : Bones.Entities.Actor
     event_queue : Bones.Engine.Events.GameEvent[]
 
     constructor() {
         this.scheduler = new ROT.Scheduler.Simple()
-        this.player = new Bones.Components.PlayerActor("hero", true)
-        this.architect = new Bones.Components.Actor("architect")
+        this.player = new Bones.Entities.PlayerActor("hero", true)
+        this.architect = new Bones.Entities.Actor("architect")
 
-        this.scheduler.add(new Bones.Components.Actor("mob1"), true)
-        this.scheduler.add(new Bones.Components.Actor("mob2"), true)
+        this.scheduler.add(new Bones.Entities.Actor("mob1"), true)
+        this.scheduler.add(new Bones.Entities.Actor("mob2"), true)
         this.scheduler.add(this.player, true)
     }
     
