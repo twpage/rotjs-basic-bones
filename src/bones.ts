@@ -3,15 +3,18 @@ export { Engine }
 
 // import * as Components from './game-components'
 // export { Components }
-import { Coordinate, Directions } from './game-components'
+import { Coordinate, Directions, Region } from './game-components'
 export { Coordinate }
 export { Directions }
+export { Region }
 
 import * as Utils from './game-components/utils'
 export { Utils }
 
 import * as Color from './game-components/color'
 export { Color }
+
+
 
 import * as Enums from './game-enums/enums'
 export { Enums }
@@ -21,3 +24,5 @@ export { Entities }
 
 export type ROTColor = [number, number, number]
 export * as Config from './config'
+
+export { Display, IDisplayDivElementIDs } from './display'

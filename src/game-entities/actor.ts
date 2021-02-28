@@ -1,13 +1,13 @@
 import * as  ROT from 'rot-js/lib/index'
 import * as Bones from '../bones'
 import { EntityType } from '../game-enums/enums'
-import { Entity } from './entity'
+import { Entity, IEntityDefinition } from './entity'
 
 export class Actor extends Entity {
     public turn_count : number
 
-    constructor (public name: string, public is_player : boolean = false) {
-        super(EntityType.Actor, "x", [0, 0, 0])
+    constructor (public name: string, public is_player : boolean = false, entity_def : IEntityDefinition) {
+        super(entity_def)
         this.turn_count = 1
     }
 

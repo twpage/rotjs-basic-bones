@@ -8,22 +8,22 @@ interface Dict<T> {
 export class GridOfEntities<T> {
 
     // things: Dict<ThingInterface> = {}
-    things: Dict<T> = {}
+    entities: Dict<T> = {}
     
     clearAll () {
-        this.things = {}
+        this.entities = {}
     }
     
     clone() : GridOfEntities<T> {
         let new_GoT = new GridOfEntities<T>()
-        new_GoT.things = {...this.things}
+        new_GoT.entities = {...this.entities}
         return new_GoT
     }
     
     hasAt (xy: Coordinate) : boolean {
         var key = Bones.Utils.xyToKey(xy)
         
-        if (key in this.things) {
+        if (key in this.entities) {
             return true
         } else { 
             return false
@@ -33,7 +33,7 @@ export class GridOfEntities<T> {
     getAt (xy: Coordinate) : T {
         if (this.hasAt(xy)) {
             var key = Bones.Utils.xyToKey(xy)
-            return this.things[key]
+            return this.entities[key]
         } else {
             return null
         }
@@ -45,7 +45,7 @@ export class GridOfEntities<T> {
             return false
         } else {
             var key = Bones.Utils.xyToKey(xy)
-            this.things[key] = something
+            this.entities[key] = something
             
             // if its a Thing, set its location on the object as well 
             if (something instanceof Bones.Entities.Entity) {
@@ -62,7 +62,7 @@ export class GridOfEntities<T> {
         // returns true if we removed something, false if not
         if (this.hasAt(xy)) {
             var key = Bones.Utils.xyToKey(xy)
-            delete this.things[key]
+            delete this.entities[key]
             return true
         } else {
             return false
@@ -74,7 +74,7 @@ export class GridOfEntities<T> {
         let numberkey : number
         let coords : Array<Coordinate> = []
         
-        for (let key in this.things) {
+        for (let key in this.entities) {
             numberkey = parseInt(key)
             xy = Bones.Utils.keyToXY(numberkey)
             coords.push(xy)
@@ -83,26 +83,26 @@ export class GridOfEntities<T> {
         return coords
     }
     
-    getAllThings() : Array<T> {
+    getAllEntities() : Array<T> {
         let values : Array<T> = []
-        for (let key in this.things) {
-            values.push(this.things[key])
+        for (let key in this.entities) {
+            values.push(this.entities[key])
         }
         
         return values
     }
 
-    getAllItems() : Array<IGridOfEntitiesItem<T>> {
+    getAllCoordinatesAndEntities() : Array<IGridOfEntitiesItem<T>> {
         let xy: Coordinate
         let numberkey : number
 
         let items : Array<IGridOfEntitiesItem<T>> = []
-        for (let key in this.things) {
+        for (let key in this.entities) {
             numberkey = parseInt(key)
             xy = Bones.Utils.keyToXY(numberkey)
             items.push({
                 xy: xy,
-                item: this.things[key]
+                item: this.entities[key]
             })
         }
 

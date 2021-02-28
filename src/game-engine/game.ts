@@ -4,23 +4,53 @@ import Simple from "rot-js/lib/scheduler/simple"
 // import { processEvents, GameEvent } from './events'
 // import { Actor, PlayerActor } from './actor'
 import * as Bones from '../bones'
+import { EntityType } from '../game-enums/enums'
+
 
 export class Game {
     scheduler : Simple
     player : Bones.Entities.PlayerActor
     architect : Bones.Entities.Actor
     event_queue : Bones.Engine.Events.GameEvent[]
+    current_region : Bones.Region
+    display : Bones.Display
 
-    constructor() {
+    constructor(divElements : Bones.IDisplayDivElementIDs) {
+        this.display = new Bones.Display(this, divElements)
+
+
         this.scheduler = new ROT.Scheduler.Simple()
-        this.player = new Bones.Entities.PlayerActor("hero", true)
-        this.architect = new Bones.Entities.Actor("architect")
+        this.player = new Bones.Entities.PlayerActor("hero", true, {entityType: EntityType.Actor, code: '@', color: ROT.Color.fromString("#4D4DA6")})
+        this.architect = new Bones.Entities.Actor("architect", false, {entityType: EntityType.Actor, code: null, color: null})
 
-        this.scheduler.add(new Bones.Entities.Actor("mob1"), true)
-        this.scheduler.add(new Bones.Entities.Actor("mob2"), true)
-        this.scheduler.add(this.player, true)
+        // this.scheduler.add(new Bones.Entities.Actor("mob1"), true)
+        // this.scheduler.add(new Bones.Entities.Actor("mob2"), true)
+        // this.scheduler.add(this.player, true)
+        let first_region = new Bones.Region(Bones.Config.regionSize, 1)
+        this.setCurrentRegion(first_region)
     }
     
+    setCurrentRegion(region: Bones.Region) {
+        // load a new region
+        this.current_region = region
+
+        // clear scheduler first
+        this.scheduler.clear()
+
+        // add all actors from this region into our scheduler
+        for (let a of region.actors.getAllEntities()) {
+            this.scheduler.add(a, true)
+        }
+        
+        // add our player
+        this.scheduler.add(this.player, true)
+        region.actors.setAt(region.start_xy, this.player)
+
+        // draw everything
+        this.display.drawAll()
+
+        return true
+    }
 
     public async gameLoop() {
         while (1) {

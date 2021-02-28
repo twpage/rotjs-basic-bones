@@ -10,18 +10,31 @@ import * as Bones from '../bones'
 //     entityType: EntityType
 
 import { Coordinate } from "../bones";
+import { EntityType } from '../game-enums/enums';
 
 // }
 export class Entity {
-    public location: Coordinate
+    public entityType : Bones.Enums.EntityType
+    public code: string
+    public color: Bones.ROTColor
     public bg_color : Bones.ROTColor
+
+    public location: Coordinate
     public id: number
 
-    constructor(
-        public entityType : Bones.Enums.EntityType,
-        public code: string,
-        public color: Bones.ROTColor,
-    ) {
+    constructor(entity_def : IEntityDefinition) {
         this.id = Bones.Utils.generateID()
+
+        this.entityType = entity_def.entityType
+        this.color = entity_def.color
+        this.bg_color = entity_def.bg_color
+        this.code = entity_def.code
     }
+}
+
+export interface IEntityDefinition {
+    entityType : EntityType
+    code : string
+    color: Bones.ROTColor
+    bg_color? : Bones.ROTColor
 }
