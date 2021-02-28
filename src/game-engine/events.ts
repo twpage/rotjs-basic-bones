@@ -34,6 +34,9 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
         return Promise.resolve(false)
     }
 
+    if (event_type == Bones.Enums.EventType.MOVE) {
+        
+    }
     actor.turn_count += 1
     return Promise.resolve(true)
 }
