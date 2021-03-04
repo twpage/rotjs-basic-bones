@@ -1,8 +1,5 @@
 import * as  ROT from 'rot-js/lib/index'
 import Simple from "rot-js/lib/scheduler/simple"
-// import { InputResponse } from './input-handlers'
-// import { processEvents, GameEvent } from './events'
-// import { Actor, PlayerActor } from './actor'
 import * as Bones from '../bones'
 import { EntityType } from '../game-enums/enums'
 
@@ -23,9 +20,6 @@ export class Game {
         this.player = new Bones.Entities.PlayerActor("hero", true, {entityType: EntityType.Actor, code: '@', color: ROT.Color.fromString("#4D4DA6")})
         this.architect = new Bones.Entities.Actor("architect", false, {entityType: EntityType.Actor, code: null, color: null})
 
-        // this.scheduler.add(new Bones.Entities.Actor("mob1"), true)
-        // this.scheduler.add(new Bones.Entities.Actor("mob2"), true)
-        // this.scheduler.add(this.player, true)
         let first_region = new Bones.Region(Bones.Config.regionSize, 1)
         this.setCurrentRegion(first_region)
     }
