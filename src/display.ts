@@ -45,6 +45,12 @@ export class Display {
         }
     }
 
+    drawList(coord_xys: Bones.Coordinate[]) {
+        for (let xy of coord_xys) {
+            this.drawAt(xy)
+        }
+    }
+    
     drawAt(region_xy: Bones.Coordinate) {
         let region = this.game.current_region
         let actor_at = region.actors.getAt(region_xy)

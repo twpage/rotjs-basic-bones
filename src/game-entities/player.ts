@@ -8,4 +8,9 @@ export class PlayerActor extends Actor {
         
         return Bones.Engine.InputUtility.waitForInput(Bones.Engine.handleInput.bind(this))
     }
+
+    isPlayerControlled(): boolean {
+        return true
+    }
+
 }

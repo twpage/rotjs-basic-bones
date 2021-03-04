@@ -1,8 +1,20 @@
 import * as Bones from '../bones'
+import { InputResponse } from './input-handlers'
+import { EventType } from '../game-enums/enums'
+import { Game } from './game'
+
+export interface IEventData {
+    direction_xy?: Bones.Coordinate
+    target?: Bones.Entities.Actor
+}
 
 export class GameEvent {
-    constructor(public actor: Bones.Entities.Actor, public event_type : Bones.Enums.EventType) {
-        
+    constructor(
+        public actor: Bones.Entities.Actor,
+        public event_type : Bones.Enums.EventType, 
+        public endsTurn: boolean,
+        public eventData : IEventData = {}
+        ) {
     }
 }
 
@@ -16,6 +28,7 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
     let actor = event.actor
     let event_type = event.event_type
     console.log(`running event ${Bones.Enums.EventType[event_type]} for ${actor.name} on turn #${actor.turn_count}`)
+
     if (event_type == Bones.Enums.EventType.MENU) {
         console.log("player did not use up their turn")
         return Promise.resolve(false)
@@ -29,16 +42,19 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
     }
 
     if (event_type == Bones.Enums.EventType.EXTRA_FANCY) {
-        game.event_queue.push(new GameEvent(actor, Bones.Enums.EventType.FANCY))
-        game.event_queue.push(new GameEvent(game.architect, Bones.Enums.EventType.FANCY))
+        game.event_queue.push(new GameEvent(actor, Bones.Enums.EventType.FANCY, false))
+        game.event_queue.push(new GameEvent(game.architect, Bones.Enums.EventType.FANCY, false))
         return Promise.resolve(false)
     }
 
-    if (event_type == Bones.Enums.EventType.MOVE) {
-        
+
+    if (event.endsTurn) {
+        actor.turn_count += 1
+        return Promise.resolve(true)
+    } else {
+        return Promise.resolve(false)
     }
-    actor.turn_count += 1
-    return Promise.resolve(true)
+
 }
 
 function runFancyAnimation(words: string = "*") : Promise<boolean> {
@@ -54,4 +70,21 @@ function runFancyAnimation(words: string = "*") : Promise<boolean> {
     return wait(3 * 500).then(() => {
         return true
     })
+}
+
+export function convertPlayerInputToEvent(actor: Bones.Entities.Actor, ir: InputResponse) : GameEvent {
+    let intended_event : GameEvent
+
+    switch (ir.event_type) {
+        case EventType.WAIT:
+            intended_event = new GameEvent(actor, ir.event_type, true)
+            break
+        case EventType.ATTEMPT_MOVE:
+            // if 
+            // break
+        default:
+            intended_event = new GameEvent(actor, EventType.NONE, false)
+    }
+
+    return intended_event
 }

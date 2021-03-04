@@ -2,6 +2,7 @@ import * as  ROT from 'rot-js/lib/index'
 import Simple from "rot-js/lib/scheduler/simple"
 import * as Bones from '../bones'
 import { EntityType } from '../game-enums/enums'
+import { GameEvent } from './events'
 
 
 export class Game {
@@ -55,7 +56,17 @@ export class Game {
             this.event_queue = []
             while (actor.turn_count == current_turn_count) {
                 let ir : Bones.Engine.InputResponse = await actor.act(this)
-                let next_event = new Bones.Engine.Events.GameEvent(actor, ir.event_type)
+                let next_event : GameEvent
+
+                if (actor.isPlayerControlled()) {
+                    // translate player inputs first 
+                    next_event = Bones.Engine.Events.convertPlayerInputToEvent(actor, ir)
+                    // new Bones.Engine.Events.GameEvent(actor, ir.event_type, true)
+                } else {
+                    // AI can just give you the event directly
+                    next_event = ir.actualEvent
+                }
+                
                 this.event_queue.push(next_event)
                 
                 while (this.event_queue.length > 0) {
