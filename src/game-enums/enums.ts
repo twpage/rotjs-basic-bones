@@ -3,6 +3,8 @@ export enum EventType {
     WAIT,
     ATTEMPT_MOVE,
     MOVE,
+    ATTACK,
+    GAMETICK,
     FANCY,
     EXTRA_FANCY,
     MENU,
@@ -13,3 +15,13 @@ export enum EntityType {
     Actor
 }
 
+export enum TerrainType {
+    WALL,
+    FLOOR,
+}
+
+export enum ActorType {
+    HERO,
+    ARCHITECT,
+    MOB,
+}

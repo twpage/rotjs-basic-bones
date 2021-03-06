@@ -1,6 +1,6 @@
 import * as Bones from '../bones'
 
-export function isValidMove(game: Bones.Engine.Game, actor: Bones.Entities.Actor, from_xy: Bones.Coordinate, to_xy: Bones.Coordinate) : boolean {
+export function isValidMove(game: Bones.Engine.Game, actor: Bones.Entities.Actor, to_xy: Bones.Coordinate) : boolean {
     let region = game.current_region
     let terrain_at = region.terrain.getAt(to_xy)
     if (terrain_at.code == '#') {

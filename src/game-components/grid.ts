@@ -92,17 +92,17 @@ export class GridOfEntities<T> {
         return values
     }
 
-    getAllCoordinatesAndEntities() : Array<IGridOfEntitiesItem<T>> {
+    getAllCoordinatesAndEntities() : Array<ICoordinateAndEntity<T>> {
         let xy: Coordinate
         let numberkey : number
 
-        let items : Array<IGridOfEntitiesItem<T>> = []
+        let items : Array<ICoordinateAndEntity<T>> = []
         for (let key in this.entities) {
             numberkey = parseInt(key)
             xy = Bones.Utils.keyToXY(numberkey)
             items.push({
                 xy: xy,
-                item: this.entities[key]
+                entity: this.entities[key]
             })
         }
 
@@ -110,7 +110,7 @@ export class GridOfEntities<T> {
     } 
 }
 
-interface IGridOfEntitiesItem<T> {
+interface ICoordinateAndEntity<T> {
     xy: Coordinate,
-    item: T
+    entity: T
 }

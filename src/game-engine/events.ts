@@ -1,11 +1,14 @@
 import * as Bones from '../bones'
 import { InputResponse } from './input-handlers'
-import { EventType } from '../game-enums/enums'
+import { ActorType, EventType } from '../game-enums/enums'
 import { Game } from './game'
 
 export interface IEventData {
     direction_xy?: Bones.Coordinate
     target?: Bones.Entities.Actor
+    from_xy?: Bones.Coordinate
+    to_xy?: Bones.Coordinate
+    errMsg?: string
 }
 
 export class GameEvent {
@@ -24,29 +27,61 @@ export async function processEvents(game: Bones.Engine.Game): Promise<boolean>{
     return await processEvent(game, next_event)
 }
 
+
 async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise<boolean>  {
     let actor = event.actor
     let event_type = event.event_type
     console.log(`running event ${Bones.Enums.EventType[event_type]} for ${actor.name} on turn #${actor.turn_count}`)
 
-    if (event_type == Bones.Enums.EventType.MENU) {
-        console.log("player did not use up their turn")
-        return Promise.resolve(false)
-    }
+    switch (event_type) {
+        case EventType.WAIT:
+            if (actor.isPlayerControlled()) {
+                console.log("you wait")
+            }
+            break
 
-    if (event_type == Bones.Enums.EventType.FANCY) {
-        // animation happens
-        // twp wuz here: do i need to modify this function to also be aync / await?
-        let words = (actor == game.architect) ? "***" : "*"
-        await runFancyAnimation(words)
-    }
+        case EventType.MOVE:
+            Bones.Actions.Movement.execMove(game, actor, event.eventData.from_xy, event.eventData.to_xy)
+            break
+        
+        case EventType.ATTACK:
+            let target = event.eventData.target
+            Bones.Actions.Combat.execAttack(game, actor, event.eventData.from_xy, event.eventData.to_xy, target)
+            break
 
-    if (event_type == Bones.Enums.EventType.EXTRA_FANCY) {
-        game.event_queue.push(new GameEvent(actor, Bones.Enums.EventType.FANCY, false))
-        game.event_queue.push(new GameEvent(game.architect, Bones.Enums.EventType.FANCY, false))
-        return Promise.resolve(false)
-    }
+        case EventType.GAMETICK:
+            Bones.Actions.AI.execGameTick(game, actor)
+            break
 
+        case EventType.MENU:
+            console.log("player does something that doesn't take a turn")
+            break
+
+        case EventType.FANCY:
+            console.log("This event pauses the game")
+            await runFancyAnimation()
+            break
+
+        case EventType.FANCY:
+            console.log("This event pauses the game")
+            await runFancyAnimation()
+            break
+        
+        case EventType.EXTRA_FANCY:
+            console.log("This event generates other events")
+            game.addEventToQueue(new GameEvent(actor, Bones.Enums.EventType.FANCY, false))
+            game.addEventToQueue(new GameEvent(game.architect, Bones.Enums.EventType.FANCY, false))
+            break
+
+        case EventType.NONE:
+            if (event.eventData.errMsg) {
+                console.log(event.eventData.errMsg)
+            }
+            break
+
+        default:
+            console.log("unknown event type")
+    }
 
     if (event.endsTurn) {
         actor.turn_count += 1
@@ -74,14 +109,55 @@ function runFancyAnimation(words: string = "*") : Promise<boolean> {
 
 export function convertPlayerInputToEvent(game: Bones.Engine.Game, actor: Bones.Entities.Actor, ir: InputResponse) : GameEvent {
     let intended_event : GameEvent
+    let region = game.current_region
 
     switch (ir.event_type) {
         case EventType.WAIT:
             intended_event = new GameEvent(actor, ir.event_type, true)
             break
         case EventType.ATTEMPT_MOVE:
-            if (Bones.Actions.Movement.isValidMove(game, actor, 
+            let dir_xy = ir.eventData.direction_xy
+            let new_xy = actor.location.add(dir_xy)
+            
+            // first see if it is a valid coordinate
+            let is_valid_coord = region.isValid(new_xy)
+            if (is_valid_coord) {
+
+                // is there a monster there?
+                let mob_at = region.actors.getAt(new_xy)
+                if (mob_at) {
+                    intended_event = new GameEvent(actor, EventType.ATTACK, true, {
+                        target: mob_at,
+                        from_xy: actor.location.clone(),
+                        to_xy: new_xy
+                    })
+                } else {
+                    // no monster there, just attempt regular movement
+                    let is_valid = Bones.Actions.Movement.isValidMove(game, actor, new_xy)
+                    if (is_valid) {
+                        let eventData: IEventData = {
+                            from_xy: actor.location.clone(),
+                            to_xy: new_xy
+                        }
+                        intended_event = new GameEvent(actor, EventType.MOVE, true, eventData)
+                    } else {
+                        intended_event = new GameEvent(actor, EventType.NONE, false, {errMsg: "You can't move there"})
+                    }
+                }
+
+            } else {
+                intended_event = new GameEvent(actor, EventType.NONE, false, {errMsg: "There's nothing there"})
+            }
+
             break
+        
+        // stack up these "pass through" events
+        case EventType.MENU:
+        case EventType.FANCY:
+        case EventType.EXTRA_FANCY:
+            intended_event = new GameEvent(actor, ir.event_type, false)
+            break
+        
         default:
             intended_event = new GameEvent(actor, EventType.NONE, false)
     }

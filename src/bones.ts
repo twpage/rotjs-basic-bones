@@ -27,3 +27,6 @@ export type ROTColor = [number, number, number]
 export * as Config from './config'
 
 export { Display, IDisplayDivElementIDs } from './display'
+
+import * as Definitions from './definitions'
+export { Definitions }

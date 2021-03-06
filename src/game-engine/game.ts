@@ -18,8 +18,9 @@ export class Game {
 
 
         this.scheduler = new ROT.Scheduler.Simple()
-        this.player = new Bones.Entities.PlayerActor("hero", true, {entityType: EntityType.Actor, code: '@', color: ROT.Color.fromString("#4D4DA6")})
-        this.architect = new Bones.Entities.Actor("architect", false, {entityType: EntityType.Actor, code: null, color: null})
+        this.player = new Bones.Entities.PlayerActor(Bones.Definitions.Actors.HERO)
+        this.architect = new Bones.Entities.Actor(Bones.Definitions.Actors.ARCHITECT)
+        this.architect.name = "architect"
 
         let first_region = new Bones.Region(Bones.Config.regionSize, 1)
         this.setCurrentRegion(first_region)
@@ -36,10 +37,13 @@ export class Game {
         for (let a of region.actors.getAllEntities()) {
             this.scheduler.add(a, true)
         }
-        
+
         // add our player
         this.scheduler.add(this.player, true)
         region.actors.setAt(region.start_xy, this.player)
+        
+        // add architect
+        this.scheduler.add(this.architect, true)
 
         // draw everything
         this.display.drawAll()
@@ -48,6 +52,7 @@ export class Game {
     }
 
     public async gameLoop() {
+
         while (1) {
             let actor = this.scheduler.next()
             if (!actor) { break }
@@ -60,7 +65,7 @@ export class Game {
 
                 if (actor.isPlayerControlled()) {
                     // translate player inputs first 
-                    next_event = Bones.Engine.Events.convertPlayerInputToEvent(actor, ir)
+                    next_event = Bones.Engine.Events.convertPlayerInputToEvent(this, actor, ir)
                     // new Bones.Engine.Events.GameEvent(actor, ir.event_type, true)
                 } else {
                     // AI can just give you the event directly
@@ -74,5 +79,9 @@ export class Game {
                 }
             }
         }
+    }
+
+    addEventToQueue(queued_event: GameEvent) {
+        this.event_queue.push(queued_event)
     }
 }
