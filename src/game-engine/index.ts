@@ -1,5 +1,3 @@
-import { Display } from 'rot-js'
-
 export * from './game'
 export * as Events from './events'
 export * from './input-utility'

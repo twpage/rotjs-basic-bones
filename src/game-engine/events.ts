@@ -72,7 +72,7 @@ function runFancyAnimation(words: string = "*") : Promise<boolean> {
     })
 }
 
-export function convertPlayerInputToEvent(actor: Bones.Entities.Actor, ir: InputResponse) : GameEvent {
+export function convertPlayerInputToEvent(game: Bones.Engine.Game, actor: Bones.Entities.Actor, ir: InputResponse) : GameEvent {
     let intended_event : GameEvent
 
     switch (ir.event_type) {
@@ -80,8 +80,8 @@ export function convertPlayerInputToEvent(actor: Bones.Entities.Actor, ir: Input
             intended_event = new GameEvent(actor, ir.event_type, true)
             break
         case EventType.ATTEMPT_MOVE:
-            // if 
-            // break
+            if (Bones.Actions.Movement.isValidMove(game, actor, 
+            break
         default:
             intended_event = new GameEvent(actor, EventType.NONE, false)
     }
