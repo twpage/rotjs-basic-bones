@@ -8,6 +8,7 @@ A slightly "less than bare bones" engine written for [rot.js](https://ondras.git
 * Event queue easily allows for events can create other events (e.g. explosions or projectiles that do damage)
 * Using promises/Await to handle player (keyboard) input and animated events
 * ROT.js display, with field of view and player memory
+* Support for *scrolling* views (e.g. viewable window is smaller than the entire gameplay map)
 * Dumb AI - enemies will follow you if they can see you, then attack. They will stand still otherwise.
 * 'Architect' construct that runs a 'game tick' event each turn (for simulating environmental effects)
     * Placeholder 'game tick' event will respawn monsters when they are all dead, and resurrect the player if necessary
