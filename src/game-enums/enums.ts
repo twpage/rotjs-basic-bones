@@ -25,3 +25,9 @@ export enum ActorType {
     ARCHITECT,
     MOB,
 }
+
+export enum VisionSource {
+    NoVision,
+    Self,
+    Remote,
+}

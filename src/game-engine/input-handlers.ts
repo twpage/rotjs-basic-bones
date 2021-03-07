@@ -1,5 +1,4 @@
 import * as  ROT from 'rot-js/lib/index'
-import * as Bones from '../bones'
 import { Directions } from '../game-components'
 import { EventType } from '../game-enums/enums'
 import { IEventData, GameEvent } from './events'

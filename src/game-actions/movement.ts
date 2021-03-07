@@ -14,6 +14,9 @@ export function execMove(game: Bones.Engine.Game, actor: Bones.Entities.Actor, f
     let region = game.current_region
     region.actors.removeAt(from_xy)
     region.actors.setAt(to_xy, actor)
+
     game.display.drawList([from_xy, to_xy])
+
+    actor.lastStepOffset = to_xy.subtract(from_xy)
     return true
 }

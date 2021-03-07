@@ -5,6 +5,6 @@ export function execAttack(game: Bones.Engine.Game, actor: Bones.Entities.Actor,
     let region = game.current_region
     region.actors.removeAt(to_xy)
     game.scheduler.remove(target)
-    game.display.drawAt(to_xy)
+    game.display.drawPoint(to_xy)
     return true
 }

@@ -1,7 +1,6 @@
 import * as Bones from '../bones'
 import { InputResponse } from './input-handlers'
 import { ActorType, EventType } from '../game-enums/enums'
-import { Game } from './game'
 
 export interface IEventData {
     direction_xy?: Bones.Coordinate

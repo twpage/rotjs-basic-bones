@@ -16,16 +16,18 @@ export class Display {
     
         let divMain : HTMLDivElement = <HTMLDivElement>document.getElementById(display_divs.divMain)
         
-        let font_size = 12
-        let map_width = Bones.Config.regionSize.width
-        let map_height = Bones.Config.regionSize.height
+        let font_size = 15
+        let view_width = Bones.Config.viewableSize.width
+        let view_height = Bones.Config.viewableSize.height
     
         this.rotMainDisplay = new ROT.Display({
             bg: "white",
-            width: map_width,
-            height: map_height,
+            width: view_width,
+            height: view_height,
             fontSize: font_size,
-            forceSquareRatio: false,
+            fontFamily: 'Consolas',
+            // fontStyle: 'bold',
+            forceSquareRatio: true,
             spacing: 1.05
         })
 
@@ -37,40 +39,77 @@ export class Display {
     drawAll() {
         let xy : Bones.Coordinate
 
-        for (let x = 0; x < Bones.Config.regionSize.width; x++) {
-            for (let y = 0; y < Bones.Config.regionSize.height; y++) {
-                xy = new Bones.Coordinate(x, y)
-                this.drawAt(xy)
+        // for (let x = 0; x < Bones.Config.regionSize.width; x++) {
+        //     for (let y = 0; y < Bones.Config.regionSize.height; y++) {
+        //         xy = new Bones.Coordinate(x, y)
+        //         this.drawPoint(xy)
+        //     }
+        // }
+        for (let v_xy of this.getViewWindow()) {
+            this.drawPoint(v_xy)
+        }
+    }
+
+    private getViewWindow() : Bones.Coordinate[] {
+        let view_xys : Bones.Coordinate[] = []
+
+        for (let x = 0; x < Bones.Config.viewableSize.width; x++) {
+            for (let y = 0; y < Bones.Config.viewableSize.height; y++) {
+                // this.drawPoint(new Coordinate(x, y))
+                view_xys.push((new Bones.Coordinate(x, y)).add(this.game.cameraOffset))
             }
         }
+        // console.log("viewport size: ", view_xys.length)
+        return view_xys
     }
 
     drawList(coord_xys: Bones.Coordinate[]) {
         for (let xy of coord_xys) {
-            this.drawAt(xy)
+            this.drawPoint(xy)
         }
     }
     
-    drawAt(region_xy: Bones.Coordinate) {
+    drawPoint(region_xy: Bones.Coordinate) {
+        let screen_xy = region_xy.subtract(this.game.cameraOffset)
+
         let region = this.game.current_region
         let actor_at = region.actors.getAt(region_xy)
         let terrain_at = region.terrain.getAt(region_xy)
         
-        let drawCode : string
-        let drawFgColor : Bones.ROTColor
-        let drawBgColor : Bones.ROTColor
+        let drawCode : string = ' '
+        let drawFgColor : Bones.ROTColor = Bones.Color.white
+        let drawBgColor : Bones.ROTColor = Bones.Color.dark_gray
 
-        if (actor_at) {
-            drawCode = actor_at.code
-            drawFgColor = actor_at.color
-            drawBgColor = [199, 199, 0]
+        // drawCode = '?'
+        // drawFgColor = Bones.Color.white
+        // drawBgColor = Bones.Color.black
+
+        // check if in player FOV
+        let player = this.game.player
+        let fov_at = player.fov.getAt(region_xy)
+        if ((player.fov.hasAt(region_xy)) && (fov_at != Bones.Enums.VisionSource.NoVision)) {
+
+            if (terrain_at) {
+                drawCode = terrain_at.code
+                drawFgColor = terrain_at.color
+                drawBgColor = terrain_at.bg_color
+            } 
+            if (actor_at) {
+                drawCode = actor_at.code
+                drawFgColor = actor_at.color
+                drawBgColor = [199, 199, 0]
+            }
         } else {
-            drawCode = terrain_at.code
-            drawFgColor = terrain_at.color
-            drawBgColor = Bones.Color.default_bg
+            // check if in player memory
+            let memory_at = player.memory.getAt(region_xy)
+            if (memory_at) {
+                drawCode = memory_at.code
+                drawFgColor = Bones.Color.gray
+                drawBgColor = Bones.Color.dark_gray
+            }
         }
 
-        this.rotMainDisplay.draw(region_xy.x, region_xy.y, drawCode, ROT.Color.toHex(drawFgColor), ROT.Color.toHex(drawBgColor))
+        this.rotMainDisplay.draw(screen_xy.x, screen_xy.y, drawCode, ROT.Color.toHex(drawFgColor), ROT.Color.toHex(drawBgColor))
 
     }
 
