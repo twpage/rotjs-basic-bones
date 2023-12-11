@@ -35,7 +35,7 @@ A slightly "less than bare bones" engine written for [rot.js](https://ondras.git
 
 npm init -y
 
-npm install --save-dev typescript rot-js webpack webpack-cli ts-loader live-server npm-run-all
+npm install --save-dev typescript rot-js webpack webpack-cli ts-loader http-server npm-run-all
 
 # Edit Scripts
 
@@ -45,7 +45,7 @@ Edit 'scripts' in package.json:
 "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
-    "serve": "live-server --port=8085"
+    "serve": "http-server --port=8085"
   },
 ```
 
