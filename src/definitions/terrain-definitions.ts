@@ -20,3 +20,13 @@ export const FLOOR : Bones.Entities.ITerrainDefinition  = {
     blocksVision: false,
     blocksWalking: false,
 }
+
+export const GRASS : Bones.Entities.ITerrainDefinition  = {
+    entityType: Bones.Enums.EntityType.Terrain,
+    terrainType: TerrainType.GRASS,
+    code: '\"',
+    color: Bones.Color.gray,
+    bg_color: Bones.Color.white,
+    blocksVision: false,
+    blocksWalking: false,
+}

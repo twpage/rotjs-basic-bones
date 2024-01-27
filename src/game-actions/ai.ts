@@ -1,11 +1,11 @@
 import * as ROT from 'rot-js'
 import * as Bones from '../bones'
-import { InputResponse } from '../game-engine';
+import { IInputResponse } from '../input';
 import { GameEvent } from '../game-engine/events';
 import { ActorType } from '../game-enums/enums';
 
-export function getEventOnMonsterTurn(game: Bones.Engine.Game, actor: Bones.Entities.Actor) : InputResponse {
-    let mob_event : InputResponse
+export function getEventOnMonsterTurn(game: Bones.Engine.Game, actor: Bones.Entities.Actor) : IInputResponse {
+    let mob_event : IInputResponse
 
     if (actor.actorType == ActorType.ARCHITECT) {
         mob_event = {validInput: true, actualEvent: new GameEvent(actor, Bones.Enums.EventType.GAMETICK, true)}

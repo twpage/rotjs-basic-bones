@@ -65,6 +65,7 @@ function regionGenerator(region: Region) {
     // add some mobs
     for (let i = 0; i < 2; i++) {
         let mob = new Bones.Entities.Actor(Bones.Definitions.Actors.MOB)
+        mob.name = `Mob_${i+1}`
         let safe_xy = safe_xys.pop()
         region.actors.setAt(safe_xy, mob)
     }

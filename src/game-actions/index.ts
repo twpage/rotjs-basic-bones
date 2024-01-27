@@ -1,3 +1,6 @@
 export * as AI from './ai'
 export * as Movement from './movement'
 export * as Combat from './combat'
+export * as Menus from './menus'
+export * as Abilities from './abilities'
+export * as Targeting from './targeting'

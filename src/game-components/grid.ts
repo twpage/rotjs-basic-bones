@@ -110,7 +110,7 @@ export class GridOfEntities<T> {
     } 
 }
 
-interface ICoordinateAndEntity<T> {
+export interface ICoordinateAndEntity<T> {
     xy: Coordinate,
     entity: T
 }

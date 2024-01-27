@@ -32,3 +32,6 @@ export { Display, IDisplayDivElementIDs } from './display'
 
 import * as Definitions from './definitions'
 export { Definitions }
+
+import * as Input from './input'
+export { Input }

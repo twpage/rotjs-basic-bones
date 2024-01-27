@@ -1,6 +1,8 @@
 import * as Bones from '../bones'
-import { InputResponse } from './input-handlers'
-import { ActorType, EventType } from '../game-enums/enums'
+import { IInputResponse } from '../input/input-utils'
+import { ActorType, EventType, MenuType } from '../game-enums/enums'
+import { Menu } from './menu'
+import { ITargetingRules } from './target-selector'
 
 export interface IEventData {
     direction_xy?: Bones.Coordinate
@@ -8,31 +10,55 @@ export interface IEventData {
     from_xy?: Bones.Coordinate
     to_xy?: Bones.Coordinate
     errMsg?: string
+    menuType?: MenuType
+    activeMenu?: Menu
+    incrementAmount?: number
+    // targetingRules?: ITargetingRules
+    nextEventType?: EventType
+    targetingPassThrough?: boolean
+    // passthroughTargeting?: boolean
 }
 
 export class GameEvent {
     constructor(
         public actor: Bones.Entities.Actor,
-        public event_type : Bones.Enums.EventType, 
+        public eventType : Bones.Enums.EventType, 
         public endsTurn: boolean,
         public eventData : IEventData = {}
         ) {
     }
 }
 
-
 export async function processEvents(game: Bones.Engine.Game): Promise<boolean>{
-    let next_event = game.event_queue.shift()
+    let next_event = game.event_queue.dequeue() // grab the first element - shift() basically
     return await processEvent(game, next_event)
 }
 
+// async function resolvePassthroughTargetingEvent(game: Bones.Engine.Game, event: GameEvent) : Promise<boolean>  {
+//     return Promise.resolve(false)
+// }
 
 async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise<boolean>  {
     let actor = event.actor
-    let event_type = event.event_type
-    console.log(`running event ${Bones.Enums.EventType[event_type]} for ${actor.name} on turn #${actor.turn_count}`)
+    console.log(`running event ${Bones.Enums.EventType[event.eventType]} for ${actor.name} on turn #${actor.turn_count}`)
 
-    switch (event_type) {
+    let og_event = event
+
+    // check for targeting "pass through" events, need to handle a little special
+    if (og_event.eventData.targetingPassThrough == true) {
+
+        let newEventData : IEventData = {...og_event.eventData}
+        newEventData.nextEventType = og_event.eventType
+        event = new GameEvent(
+            event.actor,
+            EventType.TARGETING_START, // replace actual event with targeting start
+            false,
+            newEventData
+        )
+        console.log(`modified PT event to ${Bones.Enums.EventType[event.eventType]} for ${actor.name} on turn #${actor.turn_count}`)
+    }
+
+    switch (event.eventType) {
         case EventType.WAIT:
             if (actor.isPlayerControlled()) {
                 console.log("you wait")
@@ -52,25 +78,85 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
             Bones.Actions.AI.execGameTick(game, actor)
             break
 
-        case EventType.MENU:
-            console.log("player does something that doesn't take a turn")
-            break
-
-        case EventType.FANCY:
-            console.log("This event pauses the game")
-            await runFancyAnimation()
-            break
-
-        case EventType.FANCY:
-            console.log("This event pauses the game")
-            await runFancyAnimation()
+        case EventType.MENU_START:
+            // start a new menu
+            Bones.Actions.Menus.activateNewMenu(game, event)
             break
         
-        case EventType.EXTRA_FANCY:
-            console.log("This event generates other events")
-            game.addEventToQueue(new GameEvent(actor, Bones.Enums.EventType.FANCY, false))
-            game.addEventToQueue(new GameEvent(game.architect, Bones.Enums.EventType.FANCY, false))
+        case EventType.MENU_UPDATE:
+            // move selection up or down (or otherwise?)
+            Bones.Actions.Menus.updateActiveMenu(game, event, event.eventData.incrementAmount)
             break
+
+        case EventType.MENU_CANCEL:
+            // 'cancel out' or 'go back' to parent from current menu
+            Bones.Actions.Menus.cancelActiveMenu(game, event)
+            break
+
+        case EventType.MENU_SELECT:
+            // select something from active menu
+            Bones.Actions.Menus.selectFromActiveMenu(game, event)
+            break
+
+        case EventType.TARGETING_START:
+            // start a new menu
+            Bones.Actions.Targeting.activateNewTargeting(game, event)
+            break
+        
+        case EventType.TARGETING_UPDATE:
+            // move target selection
+            Bones.Actions.Targeting.updateActiveTargeting(game, event, event.eventData.direction_xy)
+            break
+
+        case EventType.TARGETING_CANCEL:
+            // 'cancel out' of targeting (or 'go back' to parent menu?)
+            Bones.Actions.Targeting.cancelActiveTargeting(game, event)
+            break
+
+        case EventType.TARGETING_SELECT:
+            // confirm targeting selection
+            Bones.Actions.Targeting.confirmActiveTargeting(game, event)
+            break
+
+        case EventType.TARGETING_ERROR:
+            // confirm targeting selection
+            Bones.Actions.Targeting.errorOnActiveTargeting(game, event)
+            break
+        
+        case EventType.ABILITY_PLANT:
+            Bones.Actions.Abilities.plantGrass(game, event)
+            break
+
+        case EventType.ABILITY_TELEPORT:
+            Bones.Actions.Abilities.teleportSelfToRandomSpot(game, event)
+            break
+        
+        case EventType.ABILITY_SUMMON:
+            Bones.Actions.Abilities.summonMonsterNearby(game, event)
+            break
+        
+        case EventType.ABILITY_JUMP:
+            Bones.Actions.Abilities.jump(game, event)
+            break
+
+        case EventType.ABILITY_ZAP:
+            Bones.Actions.Abilities.zap(game, event)
+            break            
+            
+        // case EventType.MENU:
+        //     console.log("player does something that doesn't take a turn")
+        //     break
+
+        // case EventType.FANCY:
+        //     console.log("This event pauses the game")
+        //     await runFancyAnimation()
+        //     break
+        
+        // case EventType.EXTRA_FANCY:
+        //     console.log("This event generates other events")
+        //     game.addEventToQueue(new GameEvent(actor, Bones.Enums.EventType.FANCY, false))
+        //     game.addEventToQueue(new GameEvent(game.architect, Bones.Enums.EventType.FANCY, false))
+        //     break
 
         case EventType.NONE:
             if (event.eventData.errMsg) {
@@ -106,7 +192,7 @@ function runFancyAnimation(words: string = "*") : Promise<boolean> {
     })
 }
 
-export function convertPlayerInputToEvent(game: Bones.Engine.Game, actor: Bones.Entities.Actor, ir: InputResponse) : GameEvent {
+export function convertPlayerInputToEvent(game: Bones.Engine.Game, actor: Bones.Entities.Actor, ir: IInputResponse) : GameEvent {
     let intended_event : GameEvent
     let region = game.current_region
 
@@ -149,16 +235,18 @@ export function convertPlayerInputToEvent(game: Bones.Engine.Game, actor: Bones.
             }
 
             break
-        
-        // stack up these "pass through" events
-        case EventType.MENU:
-        case EventType.FANCY:
-        case EventType.EXTRA_FANCY:
-            intended_event = new GameEvent(actor, ir.event_type, false)
-            break
+
+        // 1/16/2024 can I just assume everything else is pass through?
+        // // stack up these "pass through" events
+        // case EventType.MENU:
+        // case EventType.FANCY:
+        // case EventType.EXTRA_FANCY:
+        //     intended_event = new GameEvent(actor, ir.event_type, false)
+        //     break
         
         default:
-            intended_event = new GameEvent(actor, EventType.NONE, false)
+            // intended_event = new GameEvent(actor, EventType.NONE, false)
+            intended_event = new GameEvent(actor, ir.event_type, false, ir.eventData)
     }
 
     return intended_event

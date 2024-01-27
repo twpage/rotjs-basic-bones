@@ -33,3 +33,7 @@ export function dist2d(from_xy: Coordinate, to_xy: Coordinate) : number {
     
     return Math.sqrt(xdiff*xdiff + ydiff*ydiff)
 }
+
+// export function mod(m: number, n: number) : number {
+//     return ((m % n) + n) % n
+// }

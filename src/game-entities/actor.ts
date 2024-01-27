@@ -1,6 +1,7 @@
 import * as Bones from '../bones'
 import { GridOfEntities } from '../game-components/grid'
 import { ActorType } from '../game-enums/enums'
+import { IInputResponse } from '../input'
 import { Entity, IEntityDefinition } from './entity'
 
 export class Actor extends Entity implements IActorDefinition {
@@ -25,13 +26,15 @@ export class Actor extends Entity implements IActorDefinition {
         this.clearMemory()
     }
 
-    act (game: Bones.Engine.Game) : Promise<Bones.Engine.InputResponse> {
+    // default code, player actor has their own
+    act (game: Bones.Engine.Game) : Promise<IInputResponse> {
 
-        let mob_response : Bones.Engine.InputResponse
+        let mob_response : IInputResponse
         mob_response = Bones.Actions.AI.getEventOnMonsterTurn(game, this)
         return Promise.resolve(mob_response)
     }
 
+    // default code, player actor has their own
     public isPlayerControlled(): boolean {
         return false
     }

@@ -1,5 +1,9 @@
 import * as ROT from 'rot-js'
 import * as Bones from './bones'
+import { IMenuEntry, Menu } from './game-engine/menu'
+import { Rectangle, WallSide } from './game-components/shapes'
+import { EventType } from './game-enums/enums'
+import { TargetSelector } from './game-engine/target-selector'
 
 export interface IDisplayDivElementIDs {
     divMain: string
@@ -69,6 +73,10 @@ export class Display {
         }
     }
     
+    drawPointAtScreen(screen_xy: Bones.Coordinate, drawCode: string, fg_color: Bones.ROTColor, bg_color: Bones.ROTColor) {
+        this.rotMainDisplay.draw(screen_xy.x, screen_xy.y, drawCode, ROT.Color.toHex(fg_color), ROT.Color.toHex(bg_color))
+    }
+    
     drawPoint(region_xy: Bones.Coordinate) {
         let screen_xy = region_xy.subtract(this.game.cameraOffset)
 
@@ -109,8 +117,64 @@ export class Display {
             }
         }
 
-        this.rotMainDisplay.draw(screen_xy.x, screen_xy.y, drawCode, ROT.Color.toHex(drawFgColor), ROT.Color.toHex(drawBgColor))
-
+        this.drawPointAtScreen(screen_xy, drawCode, drawFgColor, drawBgColor)
     }
 
+    drawMenu(active_menu: Menu) {
+        // draw a super basic menu on top of the existing screen
+        
+        // figure out how to center our menu
+        let longest_text = Math.max(...active_menu.getEntries().map((entry: IMenuEntry, idx: number) => { return entry.menuName.length })) + 1 // +1 buffer for selector 
+        let menu_width = longest_text + 2 // menu width needs +2 for borders
+        let screen_width = Bones.Config.viewableSize.width
+        let starting_x = (screen_width - menu_width) / 2
+        let menu_length = active_menu.getEntries().length + 2
+        let screen_height = Bones.Config.viewableSize.height
+        let starting_y = (screen_height - menu_length) / 2
+
+        // draw some rough borders
+        let border_rect : Rectangle = new Rectangle(starting_x, starting_y, menu_width, menu_length)
+        for (let xy of border_rect.getCorners()) {
+            this.drawPointAtScreen(xy, '+', Bones.Color.white, Bones.Color.dark_gray)
+        }
+        for (let xy of border_rect.getPerimeter_NoCorners()) {
+            if ([WallSide.Top, WallSide.Bottom].indexOf(border_rect.getPerimeterSide(xy)) > -1) {
+                this.drawPointAtScreen(xy, '\u2014', Bones.Color.white, Bones.Color.dark_gray)
+            } else {
+                this.drawPointAtScreen(xy, '|', Bones.Color.white, Bones.Color.dark_gray)
+            }
+        }
+        
+        // draw our entries, with basic selection indicator
+        let drawing_row = starting_y + 1
+        let rowColor : Bones.ROTColor
+        let rowBgColor : Bones.ROTColor
+        for (let m = 0; m < active_menu.getEntries().length; m++) {
+            let menu_entry = active_menu.getEntries()[m]
+            let entry_name = menu_entry.menuName + ((menu_entry.menuTriggeredEvent.eventType == EventType.MENU_START) ? '>' : ' ')
+
+            for (let i = 0; i < Math.max(longest_text, entry_name.length); i ++) {
+                let ch = (i > entry_name.length) ? ' ' : entry_name[i]
+                rowColor = (active_menu.isCurrentIndex(m)) ? Bones.Color.dark_gray : Bones.Color.white
+                rowBgColor = (active_menu.isCurrentIndex(m)) ? Bones.Color.white : Bones.Color.dark_gray
+                
+                this.drawPointAtScreen(new Bones.Coordinate(starting_x + 1 + i, drawing_row), ch, rowColor, rowBgColor)
+            }
+            drawing_row += 1
+        }
+    }
+
+    drawTargeting(active_tgt_selector: TargetSelector) {
+        // for now assume a simple single point highlighted
+        let screen_xy = active_tgt_selector.getTarget().subtract(this.game.cameraOffset)
+        // console.log(`drawing at ${active_tgt_selector.getTarget().toString()}`)
+        let bgColor : Bones.ROTColor = (active_tgt_selector.checkValidTargetSelection()) ? Bones.Color.forest_green : Bones.Color.red
+        this.drawPointAtScreen(screen_xy, 'x', Bones.Color.white, bgColor)
+    }
+
+    undrawTargeting(active_tgt_selector: TargetSelector) {
+        // console.log(`undrawing at ${active_tgt_selector.getTarget().toString()}`)
+        // for now assume a simple single point highlighted
+        this.drawPoint(active_tgt_selector.getTarget())
+    }
 }
