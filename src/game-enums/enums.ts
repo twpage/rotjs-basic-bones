@@ -5,6 +5,9 @@ export enum EventType {
     MOVE,
     ATTACK,
     GAMETICK,
+    DEMO_FANCY,
+    DEMO_EXTRA_FANCY,
+    DEMO_NOTURNCOUNT,
     
     MENU_START,
     MENU_CANCEL,

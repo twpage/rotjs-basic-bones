@@ -143,20 +143,20 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
             Bones.Actions.Abilities.zap(game, event)
             break            
             
-        // case EventType.MENU:
-        //     console.log("player does something that doesn't take a turn")
-        //     break
+        case EventType.DEMO_NOTURNCOUNT:
+            console.log("player does something that doesn't take a turn")
+            break
 
-        // case EventType.FANCY:
-        //     console.log("This event pauses the game")
-        //     await runFancyAnimation()
-        //     break
+        case EventType.DEMO_FANCY:
+            console.log("This event pauses the game")
+            await runFancyAnimation()
+            break
         
-        // case EventType.EXTRA_FANCY:
-        //     console.log("This event generates other events")
-        //     game.addEventToQueue(new GameEvent(actor, Bones.Enums.EventType.FANCY, false))
-        //     game.addEventToQueue(new GameEvent(game.architect, Bones.Enums.EventType.FANCY, false))
-        //     break
+        case EventType.DEMO_EXTRA_FANCY:
+            console.log("This event generates other events")
+            game.addEventToQueue(new GameEvent(actor, Bones.Enums.EventType.DEMO_FANCY, false))
+            game.addEventToQueue(new GameEvent(game.architect, Bones.Enums.EventType.DEMO_FANCY, false))
+            break
 
         case EventType.NONE:
             if (event.eventData.errMsg) {

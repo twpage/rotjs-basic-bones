@@ -6,6 +6,8 @@ A slightly "less than bare bones" engine written for [rot.js](https://ondras.git
 
 * Grid/Coordinate/Entities class that I have built up over dozens of games
 * Event queue easily allows for events can create other events (e.g. explosions or projectiles that do damage)
+    * Basic menu system that is handled using the same event queue, including sub-menus and menu inputs that launch other events
+    * Basic targeting interface also handled using same event queue, allows for chaining events that need additional play input (firing, throwing, aiming, etc.)
 * Using promises/Await to handle player (keyboard) input and animated events
 * ROT.js display, with field of view and player memory
 * Support for *scrolling* views (e.g. viewable window is smaller than the entire gameplay map)
@@ -13,11 +15,13 @@ A slightly "less than bare bones" engine written for [rot.js](https://ondras.git
 * 'Architect' construct that runs a 'game tick' event each turn (for simulating environmental effects)
     * Placeholder 'game tick' event will respawn monsters when they are all dead, and resurrect the player if necessary
 * Basic Input:
-    * WASD or Arrow Keys move
-    * SPACE waits
-    * Q runs a fake 'menu' command that does not use up the player's turn
-    * F runs a timed fake 'animation'
-    * Q uses the event queue to run two timed animations
+    * *Xbox 360 Gamepad support through browser GamePad API*
+    * Move: WASD, Arrow Keys, Gamepad D-pad
+    * Wait/Action: SPACE, ENTER, Gamepad 'A' button
+    * Abilities: E, Gamepad 'Y' button
+    * Cancel/Back: Q, ESC, Gamepad 'B' button
+    * Secondary/Next: F, Gamepad 'X' button (no current function)
+* 'Cancel' and 'Secondary' inputs fire off placeholder/demo events
 
 "Basic Bones" does *not* include:
 
@@ -25,7 +29,7 @@ A slightly "less than bare bones" engine written for [rot.js](https://ondras.git
 * Any fancy monster AI
 * Doors
 * Real Combat (one hit and you die)
-* Targeting or multiple input handlers (yet..)
+* ~~Targeting or multiple input handlers (yet..)~~
 
 # See Also
 

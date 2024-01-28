@@ -24,10 +24,11 @@ export function handleKeyAndGamepadHelper(game: Game, ui : UI) : IInputResponse 
 
         } else if (ui == UI.PLAYER_MENU) {
             return {validInput: true, event_type: EventType.MENU_START, eventData: {menuType: MenuType.PLAYER_ABILITIES}}
-        // } else if (ui == UI.CANCEL_BACK) {
-        //     return {validInput: true, event_type: EventType.FANCY}
+        } else if (ui == UI.CANCEL_BACK) {
+            return {validInput: true, event_type: EventType.DEMO_NOTURNCOUNT}
         } else if (ui == UI.NEXT_SECONDARY) {
-            return {validInput: true, event_type: EventType.ABILITY_JUMP, eventData: {targetingPassThrough: true}}
+            return {validInput: true, event_type: EventType.DEMO_EXTRA_FANCY}
+            // return {validInput: true, event_type: EventType.ABILITY_JUMP, eventData: {targetingPassThrough: true}}
         } else if (ui == UI.GAME_MENU) {
             return {validInput: true, event_type: EventType.MENU_START, eventData: {menuType: MenuType.GAME_CONFIG}}
         }

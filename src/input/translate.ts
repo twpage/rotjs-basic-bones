@@ -59,7 +59,7 @@ export function convertKeyboardInputToUI(kb_event: KeyboardEvent) : UI {
         return UI.CONFIRM_ACTION
     
     // secondary action or NEXT
-    } else if (["e"].indexOf(kb_event.key) > -1) {
+    } else if (["f"].indexOf(kb_event.key) > -1) {
         return UI.NEXT_SECONDARY
     
     // cancel-back
@@ -67,7 +67,7 @@ export function convertKeyboardInputToUI(kb_event: KeyboardEvent) : UI {
         return UI.CANCEL_BACK
 
     // player menu AKA inventory or powers or whatever menu
-    } else if (["i"].indexOf(kb_event.key) > -1) {
+    } else if (["e"].indexOf(kb_event.key) > -1) {
         return UI.PLAYER_MENU
 
     // game menu AKA pause/continue/restart/debug/options/etc.
