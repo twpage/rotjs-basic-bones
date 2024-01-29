@@ -3,6 +3,8 @@
     into basic 'UI' elements, that are interpretted based on game state, menu, etc.
 */
 
+import { Util } from 'rot-js'
+import { Rectangle } from '../game-components/shapes'
 import { UI } from '../game-enums/enums'
 import { generatedGamepadButtonEvent } from './input-utils'
 
@@ -42,7 +44,9 @@ export function convertGamepadButtonInputToUI(gp_btn_event: generatedGamepadButt
 }
 
 export function translateMouseInputToUI(mouse_event: MouseEvent) : UI {
+
     if (mouse_event.button == 0) {
+        console.log()
         return UI.CONFIRM_ACTION
     }
 

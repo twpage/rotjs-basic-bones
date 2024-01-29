@@ -40,6 +40,10 @@ export class Display {
     
     }
 
+    getROTDisplay() : ROT.Display {
+        return this.rotMainDisplay
+    }
+
     drawAll() {
         let xy : Bones.Coordinate
 
