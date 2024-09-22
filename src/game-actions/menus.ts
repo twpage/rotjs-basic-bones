@@ -161,12 +161,47 @@ function getMenuEntriesFor_PlayerAbilities(game: Game, start_menu_event: GameEve
     return built_menu_entries
 }
 
+
+function getMenuEntriesFor_GameConfig(game: Game, start_menu_event: GameEvent) : Array<IMenuEntry> {
+    let built_menu_entries : Array<IMenuEntry> = []
+
+    let entry_new : IMenuEntry = {
+        menuName : "New Game",
+        menuDesc: "Start a brand new game",
+        menuTriggeredEvent: new GameEvent(
+            start_menu_event.actor,
+            EventType.GAME_NEW,
+            true,
+        )
+    }
+
+    let entry_restart : IMenuEntry = {
+        menuName : "Restart Seed",
+        menuDesc: "Restart game with same random seed",
+        menuTriggeredEvent: new GameEvent(
+            start_menu_event.actor,
+            EventType.GAME_NEW,
+            true,
+            {
+                incrementAmount: game.getGameSeed()
+            }
+        )
+    }
+
+    built_menu_entries.push(entry_new, entry_restart  )
+    return built_menu_entries
+}
+
+
 function buildMenuOfType(game: Game, start_menu_event: GameEvent, given_menu_type: MenuType) : Menu {
     let built_menu_entries : Array<IMenuEntry> = []
 
     if (given_menu_type == MenuType.PLAYER_ABILITIES) {
         let ability_entries = getMenuEntriesFor_PlayerAbilities(game, start_menu_event)
         built_menu_entries = built_menu_entries.concat(ability_entries)
+    } else if (given_menu_type == MenuType.GAME_CONFIG) {
+            let ability_entries = getMenuEntriesFor_GameConfig(game, start_menu_event)
+            built_menu_entries = built_menu_entries.concat(ability_entries)
     } else {
         // unknown menu type?
     }

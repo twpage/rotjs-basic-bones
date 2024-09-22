@@ -17,13 +17,10 @@ function startMe() {
         divFooter: "div_footer"
     }
 
-    let init_seed : number
+    let init_seed : number = 0
     if (browser_given_seed) {
         init_seed = parseInt(browser_given_seed)
-    } else {
-        init_seed = Math.floor(Math.random() * 99999)
     }
-
     let game = new Bones.Engine.Game(divElementsIDs, init_seed)
 
     window.addEventListener("gamepadconnected", function(gamepad_event : GamepadEvent) {

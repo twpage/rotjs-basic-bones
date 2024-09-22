@@ -28,6 +28,15 @@ export enum EventType {
     ABILITY_TELEPORT,
     ABILITY_ZAP,
     ABILITY_JUMP,
+
+    ANIMATION,
+
+    GAME_NEW,
+}
+
+export enum AnimationType {
+    PATH,
+    FLASH,
 }
 
 export enum MenuType {
@@ -38,6 +47,7 @@ export enum MenuType {
 
 export enum EntityType {
     Terrain,
+    AnimationBlip,
     Actor
 }
 

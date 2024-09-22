@@ -30,7 +30,9 @@ export class Game {
     activeMenu : Menu
     activeTargeting : TargetSelector
 
-    constructor(divElements : Bones.IDisplayDivElementIDs, private init_seed : number) {
+    initial_seed : number
+
+    constructor(divElements : Bones.IDisplayDivElementIDs, private init_seed : number=0) {
         console.log(`starting game with seed ${init_seed}`)
         this.initRNG(init_seed)
 
@@ -50,7 +52,17 @@ export class Game {
     }
 
     initRNG(initial_seed : number) {
-        ROT.RNG.setSeed(initial_seed)
+        if (initial_seed == 0) {
+            this.initial_seed = Math.floor(Math.random() * 99999)
+        } else {
+            this.initial_seed = initial_seed
+        }
+        
+        ROT.RNG.setSeed(this.initial_seed)
+    }
+
+    getGameSeed(): number {
+        return this.initial_seed
     }
 
     setCurrentRegion(region: Bones.Region) {

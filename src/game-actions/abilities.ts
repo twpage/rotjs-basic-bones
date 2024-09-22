@@ -5,6 +5,7 @@ import { GameEvent } from "../game-engine/events";
 import { Shapes } from '../game-components';
 import { VisionSource } from '../game-enums/enums';
 import { Combat } from '.';
+import { CoordinateArea } from '../game-components/coordinate-area';
 
 
 export function zap(game: Game, initiating_event: GameEvent) : boolean {
@@ -31,16 +32,27 @@ export function jump(game: Game, initiating_event: GameEvent) : boolean {
 
 export function summonMonsterNearby(game: Game, initiating_event: GameEvent) : boolean {
     let summoner = initiating_event.actor
-    let seen_spots_xys = summoner.fov.getAllCoordinatesAndEntities()
-    //.filter((xy_entity: ICoordinateAndEntity, idx: number) => {
-    seen_spots_xys = seen_spots_xys.filter((xy_entity: typeof seen_spots_xys[0], idx: number) => { return xy_entity.entity == VisionSource.Self })
-    seen_spots_xys = ROT.RNG.shuffle(seen_spots_xys)
 
+    // find all spots we can see with our own 'eyes' (e.g. near by and not some sort of remote vision)
+    let seen_spots_entityXYs = summoner.fov.getAllCoordinatesAndEntities()
+    let self_seen_spots_entityXYs = seen_spots_entityXYs.filter((xy_entity: typeof seen_spots_entityXYs[0], idx: number) => { return xy_entity.entity == VisionSource.Self })
+    let self_seen_spots_xys = ROT.RNG.shuffle(self_seen_spots_entityXYs.map((xy_entity: typeof self_seen_spots_entityXYs[0], idx: number) => {
+        return xy_entity.xy
+    }) ) // randomize it while we're at it
+
+    // get 'walkable' coords from our region that don't have actors already
+    let walkable_xys = game.current_region.getWalkableTerrainWithoutActors()
+    
+    // merge the two , take the intersection
+    let walkable_and_self_seen_xys = new CoordinateArea(self_seen_spots_xys).getIntersection(new CoordinateArea(walkable_xys)).getCoordinates()
+    
+    // create a new actor and add it to the first (random) location from the list
+    
     let mob = new Bones.Entities.Actor(Bones.Definitions.Actors.MOB)
     game.scheduler.add(mob, true) // need to add to scheduler manually since we already started the region
 
-    game.current_region.actors.setAt(seen_spots_xys[0].xy, mob)
-    game.display.drawPoint(seen_spots_xys[0].xy)
+    game.current_region.actors.setAt(walkable_and_self_seen_xys[0], mob)
+    game.display.drawPoint(walkable_and_self_seen_xys[0])
 
     return true
 }

@@ -1,8 +1,8 @@
 import * as Bones from '../bones'
 import { IInputResponse } from '../input/input-utils'
-import { ActorType, EventType, MenuType } from '../game-enums/enums'
+import { EventType, MenuType } from '../game-enums/enums'
 import { Menu } from './menu'
-import { ITargetingRules } from './target-selector'
+import { TurnBasedAnimation } from './animation'
 
 export interface IEventData {
     direction_xy?: Bones.Coordinate
@@ -13,10 +13,10 @@ export interface IEventData {
     menuType?: MenuType
     activeMenu?: Menu
     incrementAmount?: number
-    // targetingRules?: ITargetingRules
     nextEventType?: EventType
     targetingPassThrough?: boolean
-    // passthroughTargeting?: boolean
+    animationComplete?: boolean
+    animationObject?: TurnBasedAnimation
 }
 
 export class GameEvent {
@@ -42,13 +42,13 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
     let actor = event.actor
     console.log(`running event ${Bones.Enums.EventType[event.eventType]} for ${actor.name} on turn #${actor.turn_count}`)
 
-    let og_event = event
-
     // check for targeting "pass through" events, need to handle a little special
-    if (og_event.eventData.targetingPassThrough == true) {
+    let pre_tgt_event : GameEvent = event    
 
-        let newEventData : IEventData = {...og_event.eventData}
-        newEventData.nextEventType = og_event.eventType
+    if (pre_tgt_event.eventData.targetingPassThrough == true) {
+
+        let newEventData : IEventData = {...pre_tgt_event.eventData}
+        newEventData.nextEventType = pre_tgt_event.eventType
         event = new GameEvent(
             event.actor,
             EventType.TARGETING_START, // replace actual event with targeting start
@@ -56,6 +56,29 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
             newEventData
         )
         console.log(`modified PT event to ${Bones.Enums.EventType[event.eventType]} for ${actor.name} on turn #${actor.turn_count}`)
+    }
+
+    // handle events that need animation ??
+    let needs_animation = Bones.Engine.Animation.doesEventRequireAnimation(game, event)
+    if ((needs_animation) && (!(event.eventData.animationComplete))) {
+        let animation_obj = Bones.Engine.Animation.getAnimationObject(game, event)
+
+        let animation_event = new GameEvent(
+            event.actor, EventType.ANIMATION, false, {
+                animationObject: animation_obj
+            }
+        )
+
+        let newEventData : IEventData = {...event.eventData}
+        newEventData.animationComplete = true
+        event.eventData = newEventData
+        console.log(`set animation flag of ${Bones.Enums.EventType[event.eventType]} for ${actor.name} on turn #${actor.turn_count}`)
+
+        // run animation before our event, so stick it back in the queue
+        game.addEventToQueue(animation_event) // add them in the order they are run
+        game.addEventToQueue(event)
+
+        return Promise.resolve(false)
     }
 
     switch (event.eventType) {
@@ -141,8 +164,12 @@ async function processEvent(game: Bones.Engine.Game, event: GameEvent) : Promise
 
         case EventType.ABILITY_ZAP:
             Bones.Actions.Abilities.zap(game, event)
-            break            
-            
+            break
+        
+        case EventType.ANIMATION:
+            await Bones.Engine.Animation.runAnimation(game, event)
+            break
+
         case EventType.DEMO_NOTURNCOUNT:
             console.log("player does something that doesn't take a turn")
             break

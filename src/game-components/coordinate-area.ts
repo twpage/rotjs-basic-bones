@@ -81,6 +81,18 @@ export class CoordinateArea {
         return diff_a.getUnion(diff_b)
     }
 
+    getIntersection(other_area: CoordinateArea) : CoordinateArea {
+        // return only elements that are in A and B
+        let intersect_area = new CoordinateArea()
+
+        this.getCoordinates().forEach((xy) => {
+            if (other_area.hasCoordinate(xy)) {
+                intersect_area.addCoordinate(xy)
+            }
+        })
+        return intersect_area
+    }
+
     getCoordinatesExcept(exception_xy_list: Array<Coordinate>) : Array<Coordinate> {
         let other_area = new CoordinateArea(exception_xy_list)
         return this.getDiff(other_area).getCoordinates()

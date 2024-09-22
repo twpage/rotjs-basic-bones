@@ -12,12 +12,15 @@ export class Region {
     public actors: GridOfEntities<Actor>
     public start_xy : Bones.Coordinate
 
+    private walkable_terrain_xys : Bones.Coordinate[] = []
+
     constructor(public size: ISize, public depth: number) {
         this.id = Bones.Utils.generateID()
         this.terrain = new GridOfEntities<Terrain>()
         this.actors = new GridOfEntities<Actor>()
 
         regionGenerator(this)
+        this.updateWalkableTerrain()
     }
 
     isValid(xy: Bones.Coordinate) : boolean {
@@ -25,7 +28,19 @@ export class Region {
     }
 
     getWalkableTerrain() : Bones.Coordinate[] {
-        return this.terrain.getAllCoordinatesAndEntities().filter((item) => { return !(item.entity.blocksWalking) }).map((item) => { return item.xy })
+        // return this.terrain.getAllCoordinatesAndEntities().filter((item) => { return !(item.entity.blocksWalking) }).map((item) => { return item.xy })
+        return this.walkable_terrain_xys
+    }
+
+    updateWalkableTerrain() : boolean {
+        let curr_count = this.walkable_terrain_xys.length
+
+        let walk_xys = this.terrain.getAllCoordinatesAndEntities().filter((item) => { return !(item.entity.blocksWalking) }).map((item) => { return item.xy })
+        this.walkable_terrain_xys = walk_xys
+        
+        let new_count = this.walkable_terrain_xys.length
+
+        return curr_count != new_count
     }
 
     getWalkableTerrainWithoutActors() : Bones.Coordinate[] {
